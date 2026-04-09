@@ -1,0 +1,10 @@
+global using System.ComponentModel.DataAnnotations;
+global using System.Security.Claims;
+global using System.Text.Json;
+global using Grpc.Core;
+global using Microsoft.AspNetCore.Authorization;
+global using eShop.Basket.Module.Extensions;
+global using eShop.Basket.Module.Grpc;
+global using eShop.SharedKernel;
+global using Microsoft.Extensions.Logging;
+global using StackExchange.Redis;

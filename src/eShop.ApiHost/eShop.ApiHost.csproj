@@ -17,6 +17,7 @@
     <ProjectReference Include="..\eShop.ServiceDefaults\eShop.ServiceDefaults.csproj" />
     <ProjectReference Include="..\eShop.SharedKernel\eShop.SharedKernel.csproj" />
     <ProjectReference Include="..\Modules\Catalog\Catalog.Module\Catalog.Module.csproj" />
+    <ProjectReference Include="..\Modules\Basket\Basket.Module\Basket.Module.csproj" />
   </ItemGroup>
 
 </Project>

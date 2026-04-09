@@ -1,7 +1,9 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.AddDefaultAuthentication();
 builder.AddCatalogModule();
+builder.AddBasketModule();
 builder.Services.AddProblemDetails();
 
 var withApiVersioning = builder.Services.AddApiVersioning();
@@ -13,7 +15,7 @@ builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
     cfg.RegisterServicesFromAssemblyContaining<eShop.Catalog.Module.Infrastructure.CatalogContext>();
-    // Module assemblies will be added here as modules are created
+    cfg.RegisterServicesFromAssemblyContaining<eShop.Basket.Module.IntegrationEvents.EventHandling.OrderStartedIntegrationEventHandler>();
 });
 
 builder.Services.AddScoped<IEventBus, InProcessEventBus>();
@@ -23,5 +25,6 @@ var app = builder.Build();
 app.MapDefaultEndpoints();
 app.UseStatusCodePages();
 app.MapCatalogEndpoints();
+app.MapBasketEndpoints();
 
 app.Run();
