@@ -19,6 +19,7 @@
     <Project Path="src/WebAppComponents/WebAppComponents.csproj" />
     <Project Path="src/HybridApp/HybridApp.csproj" />
     <Project Path="src/ClientApp/ClientApp.csproj" />
+    <Project Path="src/eShop.ApiHost/eShop.ApiHost.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Basket.UnitTests/Basket.UnitTests.csproj" />
