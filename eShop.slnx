@@ -21,6 +21,9 @@
     <Project Path="src/ClientApp/ClientApp.csproj" />
     <Project Path="src/eShop.ApiHost/eShop.ApiHost.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Catalog/">
+    <Project Path="src/Modules/Catalog/Catalog.Module/Catalog.Module.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Basket.UnitTests/Basket.UnitTests.csproj" />
     <Project Path="tests/Catalog.FunctionalTests/Catalog.FunctionalTests.csproj" />
