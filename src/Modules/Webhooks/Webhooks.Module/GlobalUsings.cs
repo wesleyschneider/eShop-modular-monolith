@@ -1,0 +1,10 @@
+global using System.ComponentModel.DataAnnotations;
+global using System.Text;
+global using System.Text.Json;
+global using Microsoft.EntityFrameworkCore;
+global using eShop.ServiceDefaults;
+global using eShop.Webhooks.Module.Infrastructure;
+global using eShop.Webhooks.Module.IntegrationEvents;
+global using eShop.Webhooks.Module.Model;
+global using eShop.Webhooks.Module.Services;
+global using eShop.Webhooks.Module;
