@@ -50,7 +50,7 @@ internal static class Extensions
     /// Configures eShop projects to use OpenAI for text embedding and chat.
     /// </summary>
     public static IDistributedApplicationBuilder AddOpenAI(this IDistributedApplicationBuilder builder,
-        IResourceBuilder<ProjectResource> catalogApi,
+        IResourceBuilder<ProjectResource> apiHost,
         IResourceBuilder<ProjectResource> webApp,
         OpenAITarget openAITarget)
     {
@@ -124,7 +124,7 @@ internal static class Extensions
             }
             var openAIConnectionString = openAIConnectionBuilder.Build();
 
-            catalogApi.WithReference(builder.AddConnectionString(textEmbeddingName, cs =>
+            apiHost.WithReference(builder.AddConnectionString(textEmbeddingName, cs =>
             {
                 cs.Append($"{openAIConnectionString};Deployment={embeddingModel}");
             }));
@@ -151,7 +151,7 @@ internal static class Extensions
                     d.SkuCapacity = 20; // 20k tokens per minute are needed to seed the initial embeddings
                 });
 
-            catalogApi.WithReference(textEmbedding);
+            apiHost.WithReference(textEmbedding);
             webApp.WithReference(chat);
         }
 
@@ -162,7 +162,7 @@ internal static class Extensions
     /// Configures eShop projects to use Ollama for text embedding and chat.
     /// </summary>
     public static IDistributedApplicationBuilder AddOllama(this IDistributedApplicationBuilder builder,
-        IResourceBuilder<ProjectResource> catalogApi,
+        IResourceBuilder<ProjectResource> apiHost,
         IResourceBuilder<ProjectResource> webApp)
     {
         var ollama = builder.AddOllama("ollama")
@@ -172,7 +172,7 @@ internal static class Extensions
         var embeddings = ollama.AddModel("embedding", "all-minilm");
         var chat = ollama.AddModel("chat", "llama3.1");
 
-        catalogApi.WithReference(embeddings)
+        apiHost.WithReference(embeddings)
             .WithEnvironment("OllamaEnabled", "true")
             .WaitFor(embeddings);
         webApp.WithReference(chat)
@@ -183,68 +183,66 @@ internal static class Extensions
     }
 
     public static IResourceBuilder<YarpResource> ConfigureMobileBffRoutes(this IResourceBuilder<YarpResource> builder,
-        IResourceBuilder<ProjectResource> catalogApi,
-        IResourceBuilder<ProjectResource> orderingApi,
-        IResourceBuilder<ProjectResource> identityApi)
+        IResourceBuilder<ProjectResource> apiHost)
     {
         return builder.WithConfiguration(yarp =>
         {
-            var catalogCluster = yarp.AddCluster(catalogApi);
+            var apiCluster = yarp.AddCluster(apiHost);
 
-            yarp.AddRoute("/catalog-api/api/catalog/items", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1", "2.0"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/items/by", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items/by", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1", "2.0"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/items/{id}", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items/{id}", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1", "2.0"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/items/by/{name}", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items/by/{name}", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/items/withsemanticrelevance/{text}", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items/withsemanticrelevance/{text}", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/items/withsemanticrelevance", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items/withsemanticrelevance", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["2.0"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/items/type/{typeId}/brand/{brandId?}", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items/type/{typeId}/brand/{brandId?}", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/items/type/all/brand/{brandId?}", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items/type/all/brand/{brandId?}", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/catalogTypes", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/catalogTypes", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1", "2.0"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/catalogBrands", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/catalogBrands", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1", "2.0"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
-            yarp.AddRoute("/catalog-api/api/catalog/items/{id}/pic", catalogCluster)
+            yarp.AddRoute("/catalog-api/api/catalog/items/{id}/pic", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1", "2.0"], Mode = QueryParameterMatchMode.Exact }])
                 .WithTransformPathRemovePrefix("/catalog-api");
 
             // Generic catalog catch-all route
-            yarp.AddRoute("/api/catalog/{*any}", catalogCluster)
+            yarp.AddRoute("/api/catalog/{*any}", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1", "2.0"], Mode = QueryParameterMatchMode.Exact }]);
 
             // Ordering routes
-            yarp.AddRoute("/api/orders/{*any}", orderingApi.GetEndpoint("http"))
+            yarp.AddRoute("/api/orders/{*any}", apiCluster)
                 .WithMatchRouteQueryParameter([new() { Name = "api-version", Values = ["1.0", "1"], Mode = QueryParameterMatchMode.Exact }]);
 
             // Identity routes
-            yarp.AddRoute("/identity/{*any}", identityApi.GetEndpoint("http"))
+            yarp.AddRoute("/identity/{*any}", apiCluster)
                 .WithTransformPathRemovePrefix("/identity");
         });
     }
