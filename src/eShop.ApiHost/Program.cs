@@ -4,6 +4,7 @@ builder.AddServiceDefaults();
 builder.AddDefaultAuthentication();
 builder.AddCatalogModule();
 builder.AddBasketModule();
+builder.AddIdentityModule();
 builder.Services.AddProblemDetails();
 
 var withApiVersioning = builder.Services.AddApiVersioning();
@@ -24,7 +25,12 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 app.UseStatusCodePages();
+app.UseStaticFiles();
+app.UseIdentityModule();   // calls UseIdentityServer() — MUST be before UseAuthentication
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapCatalogEndpoints();
 app.MapBasketEndpoints();
+app.MapIdentityEndpoints();
 
 app.Run();
