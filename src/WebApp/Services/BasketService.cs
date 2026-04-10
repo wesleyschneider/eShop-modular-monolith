@@ -1,6 +1,6 @@
-﻿using eShop.Basket.API.Grpc;
-using GrpcBasketItem = eShop.Basket.API.Grpc.BasketItem;
-using GrpcBasketClient = eShop.Basket.API.Grpc.Basket.BasketClient;
+﻿using eShop.Basket.Module.Grpc;
+using GrpcBasketItem = eShop.Basket.Module.Grpc.BasketItem;
+using GrpcBasketClient = eShop.Basket.Module.Grpc.Basket.BasketClient;
 
 namespace eShop.WebApp.Services;
 
