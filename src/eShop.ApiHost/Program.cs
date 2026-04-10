@@ -8,6 +8,7 @@ builder.AddCatalogModule();
 builder.AddBasketModule();
 builder.AddIdentityModule();
 builder.AddOrderingModule();
+builder.AddPaymentModule();
 builder.Services.AddProblemDetails();
 
 var withApiVersioning = builder.Services.AddApiVersioning();
@@ -21,6 +22,7 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssemblyContaining<eShop.Catalog.Module.Infrastructure.CatalogContext>();
     cfg.RegisterServicesFromAssemblyContaining<eShop.Basket.Module.IntegrationEvents.EventHandling.OrderStartedIntegrationEventHandler>();
     cfg.RegisterServicesFromAssemblyContaining<eShop.Ordering.Module.Application.IntegrationEvents.OrderingIntegrationEventService>();
+    cfg.RegisterServicesFromAssemblyContaining<eShop.Payment.Module.IntegrationEvents.EventHandling.OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
     // These behaviors are Ordering-specific — they only apply to IRequest<T> commands.
     // Catalog/Basket use minimal API endpoints (not MediatR commands), so these behaviors
     // will only be invoked for Ordering commands/queries.

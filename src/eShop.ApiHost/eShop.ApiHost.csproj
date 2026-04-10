@@ -21,6 +21,7 @@
     <ProjectReference Include="..\Modules\Basket\Basket.Module\Basket.Module.csproj" />
     <ProjectReference Include="..\Modules\Identity\Identity.Module\Identity.Module.csproj" />
     <ProjectReference Include="..\Modules\Ordering\Ordering.Module\Ordering.Module.csproj" />
+    <ProjectReference Include="..\Modules\Payment\Payment.Module\Payment.Module.csproj" />
   </ItemGroup>
 
 </Project>

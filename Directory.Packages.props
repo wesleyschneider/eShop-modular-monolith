@@ -49,8 +49,8 @@
     <PackageVersion Include="Pgvector" Version="0.3.2" />
     <PackageVersion Include="Pgvector.EntityFrameworkCore" Version="0.3.0" />
     <!-- Version together with runtime -->
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(DotnetPackagesVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(DotnetPackagesVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(DotnetPackagesVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(DotnetPackagesVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotnetPackagesVersion)" />
     <!-- dotnet/extensions packages -->
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(MicrosoftExtensionsVersion)" />
