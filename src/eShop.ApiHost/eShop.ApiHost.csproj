@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Asp.Versioning.Http" />
     <PackageReference Include="Grpc.AspNetCore" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
@@ -19,6 +20,7 @@
     <ProjectReference Include="..\Modules\Catalog\Catalog.Module\Catalog.Module.csproj" />
     <ProjectReference Include="..\Modules\Basket\Basket.Module\Basket.Module.csproj" />
     <ProjectReference Include="..\Modules\Identity\Identity.Module\Identity.Module.csproj" />
+    <ProjectReference Include="..\Modules\Ordering\Ordering.Module\Ordering.Module.csproj" />
   </ItemGroup>
 
 </Project>
