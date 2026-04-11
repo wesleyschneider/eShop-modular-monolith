@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace eShop.Ordering.Infrastructure;
@@ -10,6 +10,6 @@ public class OrderingContextDesignTimeFactory : IDesignTimeDbContextFactory<Orde
         var optionsBuilder = new DbContextOptionsBuilder<OrderingContext>();
         optionsBuilder.UseNpgsql("Host=localhost;Database=design-time;Username=design-time;Password=design-time");
 
-        return new OrderingContext(optionsBuilder.Options);
+        return new OrderingContext(optionsBuilder.Options, null!);
     }
 }
