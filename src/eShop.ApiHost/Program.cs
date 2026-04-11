@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,7 +34,7 @@ builder.Services.AddMediatR(cfg =>
 });
 builder.Services.AddValidatorsFromAssemblyContaining<eShop.Ordering.Module.Application.IntegrationEvents.OrderingIntegrationEventService>();
 
-builder.Services.AddScoped<IEventBus, InProcessEventBus>();
+builder.Services.AddSingleton<IEventBus, InProcessEventBus>();
 
 var app = builder.Build();
 
