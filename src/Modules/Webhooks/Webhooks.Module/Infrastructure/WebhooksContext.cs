@@ -2,7 +2,7 @@ namespace eShop.Webhooks.Module.Infrastructure;
 
 public class WebhooksContext(DbContextOptions<WebhooksContext> options) : DbContext(options)
 {
-    public required DbSet<WebhookSubscription> Subscriptions { get; set; }
+    public DbSet<WebhookSubscription> Subscriptions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

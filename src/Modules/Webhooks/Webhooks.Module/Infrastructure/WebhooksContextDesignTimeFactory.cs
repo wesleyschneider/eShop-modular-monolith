@@ -8,11 +8,8 @@ public class WebhooksContextDesignTimeFactory : IDesignTimeDbContextFactory<Webh
     public WebhooksContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<WebhooksContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Database=eshopdb;Username=postgres;Password=postgres");
+        optionsBuilder.UseNpgsql("Host=localhost;Database=design-time;Username=design-time;Password=design-time");
 
-        return new WebhooksContext(optionsBuilder.Options)
-        {
-            Subscriptions = null!
-        };
+        return new WebhooksContext(optionsBuilder.Options);
     }
 }

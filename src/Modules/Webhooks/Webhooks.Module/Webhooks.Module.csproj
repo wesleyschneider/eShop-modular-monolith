@@ -12,6 +12,9 @@
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Asp.Versioning.Http" />
     <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
   </ItemGroup>
 

@@ -11,6 +11,9 @@
     <PackageReference Include="Duende.IdentityServer" />
     <PackageReference Include="Duende.IdentityServer.AspNetIdentity" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
   </ItemGroup>
 

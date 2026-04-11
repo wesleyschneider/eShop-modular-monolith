@@ -9,14 +9,9 @@ public class CatalogContextDesignTimeFactory : IDesignTimeDbContextFactory<Catal
     {
         var optionsBuilder = new DbContextOptionsBuilder<CatalogContext>();
         optionsBuilder.UseNpgsql(
-            "Host=localhost;Database=eshopdb;Username=postgres;Password=postgres",
+            "Host=localhost;Database=design-time;Username=design-time;Password=design-time",
             npgsqlOptions => npgsqlOptions.UseVector());
 
-        return new CatalogContext(optionsBuilder.Options)
-        {
-            CatalogItems = null!,
-            CatalogBrands = null!,
-            CatalogTypes = null!
-        };
+        return new CatalogContext(optionsBuilder.Options);
     }
 }
