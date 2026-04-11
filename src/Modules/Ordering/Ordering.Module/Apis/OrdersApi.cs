@@ -4,9 +4,10 @@ using Order = eShop.Ordering.Module.Application.Queries.Order;
 
 public static class OrdersApi
 {
-    public static RouteGroupBuilder MapOrdersApiV1(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapOrdersApiV1(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/orders").HasApiVersion(1.0);
+        var vApi = app.NewVersionedApi("Orders");
+        var api = vApi.MapGroup("api/orders").HasApiVersion(1, 0);
 
         api.MapPut("/cancel", CancelOrderAsync);
         api.MapPut("/ship", ShipOrderAsync);
@@ -16,7 +17,7 @@ public static class OrdersApi
         api.MapPost("/draft", CreateOrderDraftAsync);
         api.MapPost("/", CreateOrderAsync);
 
-        return api;
+        return app;
     }
 
     public static async Task<Results<Ok, BadRequest<string>, ProblemHttpResult>> CancelOrderAsync(

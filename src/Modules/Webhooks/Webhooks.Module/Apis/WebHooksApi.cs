@@ -12,9 +12,10 @@ public static class WebHooksApi
         return app;
     }
 
-    public static RouteGroupBuilder MapWebHooksApiV1(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapWebHooksApiV1(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("api/webhooks").HasApiVersion(1.0);
+        var vApi = app.NewVersionedApi("Webhooks");
+        var api = vApi.MapGroup("api/webhooks").HasApiVersion(1, 0);
 
         api.MapGet("/", async (WebhooksContext context, ClaimsPrincipal user) =>
         {
@@ -87,6 +88,6 @@ public static class WebHooksApi
             return TypedResults.NotFound($"Subscriptions {id} not found");
         });
 
-        return api;
+        return app;
     }
 }
