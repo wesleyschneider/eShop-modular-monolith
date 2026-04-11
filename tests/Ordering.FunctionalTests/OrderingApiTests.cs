@@ -3,9 +3,9 @@ using System.Text;
 using System.Text.Json;
 using Asp.Versioning;
 using Asp.Versioning.Http;
-using eShop.Ordering.API.Application.Commands;
-using eShop.Ordering.API.Application.Models;
-using eShop.Ordering.API.Application.Queries;
+using eShop.Ordering.Module.Application.Commands;
+using eShop.Ordering.Module.Application.Models;
+using eShop.Ordering.Module.Application.Queries;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace eShop.Ordering.FunctionalTests;

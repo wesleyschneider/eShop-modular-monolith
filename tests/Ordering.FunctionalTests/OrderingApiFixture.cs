@@ -11,8 +11,6 @@ public sealed class OrderingApiFixture : WebApplicationFactory<Program>, IAsyncL
     private readonly IHost _app;
 
     public IResourceBuilder<PostgresServerResource> Postgres { get; private set; }
-    public IResourceBuilder<PostgresServerResource> IdentityDB { get; private set; }
-    public IResourceBuilder<ProjectResource> IdentityApi { get; private set; }
 
     private string _postgresConnectionString;
 
@@ -21,8 +19,6 @@ public sealed class OrderingApiFixture : WebApplicationFactory<Program>, IAsyncL
         var options = new DistributedApplicationOptions { AssemblyName = typeof(OrderingApiFixture).Assembly.FullName, DisableDashboard = true };
         var appBuilder = DistributedApplication.CreateBuilder(options);
         Postgres = appBuilder.AddPostgres("OrderingDB");
-        IdentityDB = appBuilder.AddPostgres("IdentityDB");
-        IdentityApi = appBuilder.AddProject<Projects.Identity_API>("identity-api").WithReference(IdentityDB);
         _app = appBuilder.Build();
     }
 
@@ -33,7 +29,6 @@ public sealed class OrderingApiFixture : WebApplicationFactory<Program>, IAsyncL
             config.AddInMemoryCollection(new Dictionary<string, string>
             {
                 { $"ConnectionStrings:{Postgres.Resource.Name}", _postgresConnectionString },
-                { "Identity:Url", IdentityApi.GetEndpoint("http").Url }
             });
         });
         builder.ConfigureServices(services =>

@@ -1,8 +1,8 @@
 ﻿namespace eShop.Ordering.UnitTests.Application;
 
 using Microsoft.AspNetCore.Http.HttpResults;
-using eShop.Ordering.API.Application.Queries;
-using Order = eShop.Ordering.API.Application.Queries.Order;
+using eShop.Ordering.Module.Application.Queries;
+using Order = eShop.Ordering.Module.Application.Queries.Order;
 using NSubstitute.ExceptionExtensions;
 
 [TestClass]
