@@ -18,13 +18,13 @@ public static class Extensions
         // Application services
         builder.Services.AddScoped<BasketState>();
         builder.Services.AddScoped<LogOutService>();
-        builder.Services.AddSingleton<BasketService>();
+        builder.Services.AddScoped<BasketService>();
         builder.Services.AddSingleton<OrderStatusNotificationService>();
         builder.Services.AddSingleton<IProductImageUrlProvider, ProductImageUrlProvider>();
         builder.AddAIServices();
 
         // HTTP and GRPC client registrations
-        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("http://api"))
+        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("https://api"))
             .AddAuthToken();
 
         builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("https+http://api"))
