@@ -2,8 +2,10 @@ using eShop.Identity.Module.Configuration;
 using eShop.Identity.Module.Data;
 using eShop.Identity.Module.Models;
 using eShop.Identity.Module.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.FileProviders;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -45,6 +47,15 @@ public static class IdentityModuleExtensions
 
     public static WebApplication UseIdentityModule(this WebApplication app)
     {
+        var embeddedProvider = new ManifestEmbeddedFileProvider(
+            typeof(IdentityModuleExtensions).Assembly,
+            "wwwroot");
+
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = embeddedProvider
+        });
+
         app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
         app.UseIdentityServer();
         return app;
