@@ -15,7 +15,8 @@ public class GracePeriodManagerService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var delayTime = TimeSpan.FromSeconds(_options.CheckUpdateTime);
+        int time = _options.CheckUpdateTime == 0 ? 20 : _options.CheckUpdateTime;
+        var delayTime = TimeSpan.FromSeconds(time);
 
         if (logger.IsEnabled(LogLevel.Debug))
         {
