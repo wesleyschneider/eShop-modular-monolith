@@ -1,9 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using eShop.Basket.Module.Repositories;
 using eShop.Basket.Module.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace eShop.Basket.Module.Grpc;
 
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class BasketService(
     IBasketRepository repository,
     ILogger<BasketService> logger) : Basket.BasketBase

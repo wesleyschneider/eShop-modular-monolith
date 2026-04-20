@@ -62,7 +62,8 @@ apiHost.WithEnvironment("BasketApiClient", apiHost.GetEndpoint("http"))
        .WithEnvironment("OrderingApiClient", apiHost.GetEndpoint("http"))
        .WithEnvironment("WebhooksApiClient", apiHost.GetEndpoint("http"))
        .WithEnvironment("WebhooksWebClient", webhooksClient.GetEndpoint(launchProfileName))
-       .WithEnvironment("WebAppClient", webApp.GetEndpoint(launchProfileName));
+       .WithEnvironment("WebAppClient", webApp.GetEndpoint(launchProfileName))
+       .WithEnvironment("Identity__Url", apiEndpoint);
 
 builder.Build().Run();
 
