@@ -7,7 +7,7 @@ namespace eShop.Ordering.Module.BackgroundServices;
 
 public class GracePeriodManagerService(
     IOptions<BackgroundTaskOptions> options,
-    IEventBus eventBus,
+    IServiceScopeFactory scopeFactory,
     ILogger<GracePeriodManagerService> logger,
     NpgsqlDataSource dataSource) : BackgroundService
 {
@@ -53,6 +53,10 @@ public class GracePeriodManagerService(
 
         foreach (var orderId in orderIds)
         {
+            using var scope = scopeFactory.CreateScope();
+
+            var eventBus = scope.ServiceProvider.GetRequiredService<IEventBus>();
+
             var confirmGracePeriodEvent = new GracePeriodConfirmedIntegrationEvent(orderId);
 
             logger.LogInformation("Publishing integration event: {IntegrationEventId} - ({@IntegrationEvent})", confirmGracePeriodEvent.Id, confirmGracePeriodEvent);
