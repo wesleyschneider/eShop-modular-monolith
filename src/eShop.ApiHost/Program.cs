@@ -34,7 +34,7 @@ builder.Services.AddMediatR(cfg =>
 });
 builder.Services.AddValidatorsFromAssemblyContaining<eShop.Ordering.Module.Application.IntegrationEvents.OrderingIntegrationEventService>();
 
-builder.Services.AddSingleton<IEventBus, InProcessEventBus>();
+builder.Services.AddScoped<IEventBus, InProcessEventBus>();
 
 var app = builder.Build();
 

@@ -12,7 +12,14 @@ public static class OrderingModuleExtensions
 {
     public static IHostApplicationBuilder AddOrderingModule(this IHostApplicationBuilder builder)
     {
-        builder.AddNpgsqlDbContext<OrderingContext>("eshopdb");
+        // Pooling is disabled because of the following error:
+        // Unhandled exception. System.InvalidOperationException:
+        // The DbContext of type 'OrderingContext' cannot be pooled because it does not have a public constructor accepting a single parameter of type DbContextOptions or has more than one constructor.
+        builder.Services.AddDbContext<OrderingContext>(options =>
+        {
+            options.UseNpgsql(builder.Configuration.GetConnectionString("orderingdb"));
+        });
+        builder.EnrichNpgsqlDbContext<OrderingContext>();
 
         builder.Services.AddMigration<OrderingContext, OrderingContextSeed>();
 
