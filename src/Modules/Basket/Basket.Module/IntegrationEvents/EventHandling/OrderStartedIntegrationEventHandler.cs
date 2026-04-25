@@ -1,4 +1,4 @@
-using eShop.Basket.Module.IntegrationEvents.Events;
+using eShop.Ordering.Contracts;
 using eShop.Basket.Module.Repositories;
 using MediatR;
 

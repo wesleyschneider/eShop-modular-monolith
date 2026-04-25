@@ -1,4 +1,4 @@
-﻿namespace eShop.Ordering.Module.Application.IntegrationEvents.Events;
+namespace eShop.Ordering.Contracts;
 
 public record GracePeriodConfirmedIntegrationEvent : IntegrationEvent
 {
@@ -7,4 +7,3 @@ public record GracePeriodConfirmedIntegrationEvent : IntegrationEvent
     public GracePeriodConfirmedIntegrationEvent(int orderId) =>
         OrderId = orderId;
 }
-

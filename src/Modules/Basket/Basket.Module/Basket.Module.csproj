@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\eShop.SharedKernel\eShop.SharedKernel.csproj" />
     <ProjectReference Include="..\..\..\eShop.ServiceDefaults\eShop.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\Ordering\Ordering.Contracts\Ordering.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

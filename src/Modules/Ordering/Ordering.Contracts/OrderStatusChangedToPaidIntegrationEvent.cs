@@ -1,4 +1,6 @@
-﻿namespace eShop.Ordering.Module.Application.IntegrationEvents.Events;
+using eShop.Ordering.Domain.AggregatesModel.OrderAggregate;
+
+namespace eShop.Ordering.Contracts;
 
 public record OrderStatusChangedToPaidIntegrationEvent : IntegrationEvent
 {
@@ -19,4 +21,3 @@ public record OrderStatusChangedToPaidIntegrationEvent : IntegrationEvent
         BuyerIdentityGuid = buyerIdentityGuid;
     }
 }
-

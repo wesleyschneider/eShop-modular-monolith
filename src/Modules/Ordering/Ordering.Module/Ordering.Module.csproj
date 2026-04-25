@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\eShop.SharedKernel\eShop.SharedKernel.csproj" />
     <ProjectReference Include="..\..\..\eShop.ServiceDefaults\eShop.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Ordering.Contracts\Ordering.Contracts.csproj" />
     <ProjectReference Include="..\Ordering.Domain\Ordering.Domain.csproj" />
     <ProjectReference Include="..\Ordering.Infrastructure\Ordering.Infrastructure.csproj" />
   </ItemGroup>

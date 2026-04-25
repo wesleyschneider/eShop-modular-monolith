@@ -1,13 +1,15 @@
-﻿namespace eShop.Ordering.Module.Application.IntegrationEvents.Events;
+using eShop.Ordering.Domain.AggregatesModel.OrderAggregate;
 
-public record OrderStatusChangedToShippedIntegrationEvent : IntegrationEvent
+namespace eShop.Ordering.Contracts;
+
+public record OrderStatusChangedToStockConfirmedIntegrationEvent : IntegrationEvent
 {
     public int OrderId { get; }
     public OrderStatus OrderStatus { get; }
     public string BuyerName { get; }
     public string BuyerIdentityGuid { get; }
 
-    public OrderStatusChangedToShippedIntegrationEvent(
+    public OrderStatusChangedToStockConfirmedIntegrationEvent(
         int orderId, OrderStatus orderStatus, string buyerName, string buyerIdentityGuid)
     {
         OrderId = orderId;

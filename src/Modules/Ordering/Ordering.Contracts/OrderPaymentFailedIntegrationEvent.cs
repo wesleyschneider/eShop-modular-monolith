@@ -1,4 +1,4 @@
-﻿namespace eShop.Ordering.Module.Application.IntegrationEvents.Events;
+namespace eShop.Ordering.Contracts;
 
 public record OrderPaymentFailedIntegrationEvent : IntegrationEvent
 {

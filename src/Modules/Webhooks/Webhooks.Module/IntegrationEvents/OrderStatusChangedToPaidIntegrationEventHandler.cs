@@ -1,4 +1,5 @@
 using MediatR;
+using eShop.Ordering.Contracts;
 
 namespace eShop.Webhooks.Module.IntegrationEvents;
 

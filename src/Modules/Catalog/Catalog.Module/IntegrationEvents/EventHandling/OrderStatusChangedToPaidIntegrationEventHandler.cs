@@ -1,5 +1,5 @@
 using MediatR;
-using eShop.Catalog.Module.IntegrationEvents.Events;
+using eShop.Ordering.Contracts;
 
 namespace eShop.Catalog.Module.IntegrationEvents.EventHandling;
 

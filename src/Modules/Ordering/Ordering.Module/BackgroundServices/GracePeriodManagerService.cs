@@ -1,5 +1,5 @@
 using eShop.SharedKernel;
-using eShop.Ordering.Module.Application.IntegrationEvents.Events;
+using eShop.Ordering.Contracts;
 using Microsoft.Extensions.Options;
 using Npgsql;
 

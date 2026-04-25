@@ -1,4 +1,4 @@
-using eShop.Payment.Module.IntegrationEvents.Events;
+using eShop.Ordering.Contracts;
 using eShop.SharedKernel;
 using MediatR;
 using Microsoft.Extensions.Logging;

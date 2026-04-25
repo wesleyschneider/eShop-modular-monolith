@@ -10,7 +10,7 @@ global using eShop.Ordering.Module.Application.Behaviors;
 global using eShop.Ordering.Module.Application.Commands;
 global using eShop.Ordering.Module.Application.IntegrationEvents;
 global using eShop.Ordering.Module.Application.IntegrationEvents.EventHandling;
-global using eShop.Ordering.Module.Application.IntegrationEvents.Events;
+global using eShop.Ordering.Contracts;
 global using eShop.Ordering.Module.Application.Models;
 global using eShop.Ordering.Module.Application.Queries;
 global using eShop.Ordering.Module.Application.Validations;
