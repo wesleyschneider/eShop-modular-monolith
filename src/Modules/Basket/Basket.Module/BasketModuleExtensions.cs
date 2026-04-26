@@ -12,6 +12,9 @@ public static class BasketModuleExtensions
         builder.AddRedisClient("redis");
         builder.Services.AddSingleton<IBasketRepository, RedisBasketRepository>();
 
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(BasketModuleExtensions).Assembly));
+
         return builder;
     }
 

@@ -11,6 +11,9 @@ public static class PaymentModuleExtensions
         builder.Services.AddOptions<PaymentOptions>()
             .BindConfiguration(nameof(PaymentOptions));
 
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(PaymentModuleExtensions).Assembly));
+
         return builder;
     }
 }

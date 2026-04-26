@@ -38,6 +38,9 @@ public static class CatalogModuleExtensions
 
         builder.Services.AddScoped<ICatalogAI, CatalogAI>();
 
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(CatalogModuleExtensions).Assembly));
+
         return builder;
     }
 

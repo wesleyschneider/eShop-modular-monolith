@@ -1,5 +1,7 @@
+using eShop.Ordering.Module.Application.Behaviors;
 using eShop.Ordering.Module.Application.IntegrationEvents;
 using eShop.Ordering.Module.Application.Queries;
+using FluentValidation;
 using eShop.Ordering.Module.BackgroundServices;
 using eShop.Ordering.Module.Infrastructure.Services;
 using eShop.Ordering.Infrastructure;
@@ -38,6 +40,15 @@ public static class OrderingModuleExtensions
         builder.Services.AddOptions<BackgroundTaskOptions>()
             .BindConfiguration(nameof(BackgroundTaskOptions));
         builder.Services.AddHostedService<GracePeriodManagerService>();
+
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(OrderingModuleExtensions).Assembly);
+            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+            cfg.AddOpenBehavior(typeof(ValidatorBehavior<,>));
+            cfg.AddOpenBehavior(typeof(TransactionBehavior<,>));
+        });
+        builder.Services.AddValidatorsFromAssembly(typeof(OrderingModuleExtensions).Assembly);
 
         return builder;
     }

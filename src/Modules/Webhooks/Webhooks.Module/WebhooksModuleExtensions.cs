@@ -15,6 +15,9 @@ public static class WebhooksModuleExtensions
         builder.Services.AddTransient<IWebhooksRetriever, WebhooksRetriever>();
         builder.Services.AddTransient<IWebhooksSender, WebhooksSender>();
 
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(WebhooksModuleExtensions).Assembly));
+
         return builder;
     }
 
