@@ -1,0 +1,15 @@
+.git/
+.github/
+.vs/
+.vscode/
+.worktrees/
+.claude/
+.aspire/
+**/obj/
+**/bin/
+tests/
+docs/
+**/*.md
+.env
+.env.*
+!.env.example

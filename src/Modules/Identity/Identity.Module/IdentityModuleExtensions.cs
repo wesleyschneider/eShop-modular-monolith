@@ -24,6 +24,9 @@ public static class IdentityModuleExtensions
 
         builder.Services.AddIdentityServer(options =>
         {
+            var identityUrl = builder.Configuration["Identity:Url"];
+            if (identityUrl is not null)
+                options.IssuerUri = identityUrl;
             options.Authentication.CookieLifetime = TimeSpan.FromHours(2);
             options.Events.RaiseErrorEvents = true;
             options.Events.RaiseInformationEvents = true;
