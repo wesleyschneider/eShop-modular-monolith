@@ -35,18 +35,20 @@ services:
     container_name: eshop-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      # HTTP/2 sem TLS necessário para gRPC do Basket
-      # Kestrel endpoint nomeado exige Url + Protocols juntos
+      # REST (HTTP/1.1) — porta 8080
       Kestrel__Endpoints__Http__Url: http://+:8080
-      Kestrel__Endpoints__Http__Protocols: Http1AndHttp2
+      Kestrel__Endpoints__Http__Protocols: Http1
+      # gRPC (HTTP/2 cleartext, prior knowledge) — porta 8081
+      Kestrel__Endpoints__Grpc__Url: http://+:8081
+      Kestrel__Endpoints__Grpc__Protocols: Http2
       ConnectionStrings__eshopdb: Host=postgres;Database=eshopdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
       ConnectionStrings__redis: ${REDIS_CONNECTIONSTRING:-redis:6379}
-      Identity__Url: http://eshop.api:8080
-      BasketApiClient: http://eshop.api:8080
-      OrderingApiClient: http://eshop.api:8080
-      WebhooksApiClient: http://eshop.api:8080
+      Identity__Url: https://api.eshop:8443
+      BasketApiClient: https://api.eshop:8443
+      OrderingApiClient: https://api.eshop:8443
+      WebhooksApiClient: https://api.eshop:8443
       WebhooksWebClient: http://localhost:${WEBHOOKSCLIENT_PORT:-8082}
-      WebAppClient: http://eshop.webapp:8080
+      WebAppClient: https://webapp.eshop:8443
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,45 +69,48 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      services__api__http__0: http://eshop.api:8080
-      services__api__http2__0: h2c://api:8080
+      services__api__http__0: https://api.eshop:8443
+      services__api__http2__0: https://api.eshop:8443
       # H2C (HTTP/2 sem TLS) necessário para o gRPC client do Basket
       DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2UNENCRYPTEDSUPPORT: "1"
-      IdentityUrl: http://eshop.api:8080
-      CallBackUrl: http://eshop.webapp:8080
+      IdentityUrl: https://api.eshop:8443
+      CallBackUrl: https://webapp.eshop:8443
+      BasketGrpcUrl: http://api:8081
     depends_on:
       api:
         condition: service_healthy
 
-  webhooksclient:
-    build:
-      context: .
-      dockerfile: src/WebhookClient/Dockerfile
-    container_name: eshop-webhooksclient
-    ports:
-      - "${WEBHOOKSCLIENT_PORT:-8082}:8080"
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
-      services__api__http__0: http://eshop.api:8080
-      IdentityUrl: http://eshop.api:8080
-      CallBackUrl: http://localhost:${WEBHOOKSCLIENT_PORT:-8082}
-    depends_on:
-      api:
-        condition: service_healthy
+  # webhooksclient:
+  #   build:
+  #     context: .
+  #     dockerfile: src/WebhookClient/Dockerfile
+  #   container_name: eshop-webhooksclient
+  #   ports:
+  #     - "${WEBHOOKSCLIENT_PORT:-8082}:8080"
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: Development
+  #     ASPNETCORE_URLS: http://+:8080
+  #     services__api__http__0: https://api.eshop:8443
+  #     IdentityUrl: https://api.eshop:8443
+  #     CallBackUrl: http://localhost:${WEBHOOKSCLIENT_PORT:-8082}
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
 
   nginx:
     image: nginx:alpine
     container_name: eshop-nginx
     ports:
       - "8080:8080"
+      - "8443:8443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
     networks:
       default:
         aliases:
-          - eshop.api
-          - eshop.webapp
+          - api.eshop
+          - webapp.eshop
     depends_on:
       api:
         condition: service_healthy
@@ -114,7 +119,7 @@ services:
 
 volumes:
   postgres-data:
-
+    
 networks:
   default:
     name: eshop-net

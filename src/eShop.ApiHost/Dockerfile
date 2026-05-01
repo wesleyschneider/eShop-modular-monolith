@@ -26,9 +26,16 @@ RUN dotnet publish src/eShop.ApiHost/eShop.ApiHost.csproj \
     -c Release \
     -o /app/publish
 
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y ca-certificates
+COPY nginx/certs/rootCA.pem /usr/local/share/ca-certificates/mkcert.crt
+RUN update-ca-certificates
+
 RUN apt-get update && apt-get install -y --no-install-recommends curl 
 COPY --from=build /app/publish .
 EXPOSE 8080
+EXPOSE 8081
 ENTRYPOINT ["dotnet", "eShop.ApiHost.dll"]

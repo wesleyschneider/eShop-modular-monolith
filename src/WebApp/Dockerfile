@@ -18,7 +18,13 @@ RUN dotnet publish src/WebApp/WebApp.csproj \
     -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+RUN apt-get update && apt-get install -y --no-install-recommends curl 
 WORKDIR /app
+
+RUN apt-get update && apt-get install -y ca-certificates
+COPY nginx/certs/rootCA.pem /usr/local/share/ca-certificates/mkcert.crt
+RUN update-ca-certificates
+
 COPY --from=build /app/publish .
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "WebApp.dll"]

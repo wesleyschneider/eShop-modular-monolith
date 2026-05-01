@@ -1,4 +1,7 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using System.Net;
+using Microsoft.AspNetCore.HttpOverrides;
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddDefaultAuthentication();
@@ -17,6 +20,19 @@ builder.Services.AddGrpc();
 builder.Services.AddScoped<IEventBus, InProcessEventBus>();
 
 var app = builder.Build();
+
+var options = new ForwardedHeadersOptions
+{
+    ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto |
+        ForwardedHeaders.XForwardedHost
+};
+
+options.KnownIPNetworks.Clear();
+options.KnownProxies.Clear();
+
+app.UseForwardedHeaders(options);
 
 app.MapDefaultEndpoints();
 app.UseStatusCodePages();
