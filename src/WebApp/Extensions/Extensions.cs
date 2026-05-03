@@ -28,7 +28,8 @@ public static class Extensions
         builder.AddAIServices();
 
         // HTTP and GRPC client registrations
-        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("http://basket-api"))
+        var basketGrpcUrl = builder.Configuration.GetRequiredValue("BasketGrpcUrl");
+        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new(basketGrpcUrl))
             .AddAuthToken();
 
         builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("https+http://catalog-api"))
@@ -84,6 +85,27 @@ public static class Extensions
             options.Scope.Add("profile");
             options.Scope.Add("orders");
             options.Scope.Add("basket");
+
+            options.CorrelationCookie.HttpOnly = false;
+            options.CorrelationCookie.SameSite = SameSiteMode.None;
+            options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.NonceCookie.HttpOnly = false;
+            options.NonceCookie.SameSite = SameSiteMode.None;
+            options.NonceCookie.SecurePolicy = CookieSecurePolicy.Always;
+
+            options.Events = new OpenIdConnectEvents
+            {
+                OnRedirectToIdentityProvider = ctx =>
+                {
+                    ctx.ProtocolMessage.RedirectUri = $"{callBackUrl}/signin-oidc";
+                    return Task.CompletedTask;
+                },
+                OnRedirectToIdentityProviderForSignOut = ctx =>
+                {
+                    ctx.ProtocolMessage.PostLogoutRedirectUri = $"{callBackUrl}/signout-callback-oidc";
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         // Blazor auth services

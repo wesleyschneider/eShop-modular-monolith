@@ -1,0 +1,243 @@
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: eshop-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Pass1234}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: eshop-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: eshop-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  identity-api:
+    image: eshop/identity-api:dev
+    build:
+      context: .
+      dockerfile: src/Identity.API/Dockerfile
+    container_name: eshop-identity-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__identitydb: Host=postgres;Database=identitydb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
+      # IdentityServer client URLs — placeholders are inert (no service redirects to them)
+      WebAppClient:        https://webapp.eshop:8443
+      BasketApiClient:     https://basket.eshop:8443
+      OrderingApiClient:   https://ordering.eshop:8443
+      WebhooksApiClient:   https://webhooks.eshop:8443
+      WebhooksWebClient:   http://localhost:5224
+      MauiCallback:        maui://authcallback
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  basket-api:
+    image: eshop/basket-api:dev
+    build:
+      context: .
+      dockerfile: src/Basket.API/Dockerfile
+    container_name: eshop-basket-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Override appsettings.json's EndpointDefaults=Http2 with two explicit endpoints
+      Kestrel__Endpoints__Http__Url:        http://+:8080
+      Kestrel__Endpoints__Http__Protocols:  Http1
+      Kestrel__Endpoints__Grpc__Url:        http://+:8081
+      Kestrel__Endpoints__Grpc__Protocols:  Http2
+      ConnectionStrings__redis:    redis:6379
+      ConnectionStrings__eventbus: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+      Identity__Url: https://identity.eshop:8443
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  catalog-api:
+    image: eshop/catalog-api:dev
+    build:
+      context: .
+      dockerfile: src/Catalog.API/Dockerfile
+    container_name: eshop-catalog-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__catalogdb: Host=postgres;Database=catalogdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
+      ConnectionStrings__eventbus: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  ordering-api:
+    image: eshop/ordering-api:dev
+    build:
+      context: .
+      dockerfile: src/Ordering.API/Dockerfile
+    container_name: eshop-ordering-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__orderingdb: Host=postgres;Database=orderingdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
+      ConnectionStrings__eventbus:  amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+      Identity__Url: https://identity.eshop:8443
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  order-processor:
+    image: eshop/order-processor:dev
+    build:
+      context: .
+      dockerfile: src/OrderProcessor/Dockerfile
+    container_name: eshop-order-processor
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__orderingdb: Host=postgres;Database=orderingdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
+      ConnectionStrings__eventbus:  amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      ordering-api:
+        condition: service_healthy
+
+  payment-processor:
+    image: eshop/payment-processor:dev
+    build:
+      context: .
+      dockerfile: src/PaymentProcessor/Dockerfile
+    container_name: eshop-payment-processor
+    environment:
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__eventbus: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  webapp:
+    image: eshop/webapp:dev
+    build:
+      context: .
+      dockerfile: src/WebApp/Dockerfile
+    container_name: eshop-webapp
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      # Service discovery — replaces Aspire-injected values
+      services__identity-api__https__0: https://identity.eshop:8443
+      services__catalog-api__http__0:   http://catalog-api:8080
+      services__ordering-api__http__0:  http://ordering-api:8080
+      # gRPC client bypasses service discovery — points direct to basket-api HTTP/2 endpoint.
+      # No services__basket-api__* entries: the resolver would otherwise rewrite the URL's
+      # port (8081 → 8080), routing gRPC to the HTTP/1-only endpoint and triggering HTTP_1_1_REQUIRED.
+      BasketGrpcUrl: http://basket-api:8081
+      # H2C (HTTP/2 cleartext) is required for the gRPC client to talk to basket-api:8081
+      DOTNET_SYSTEM_NET_HTTP_SOCKETSHTTPHANDLER_HTTP2UNENCRYPTEDSUPPORT: "1"
+      # OIDC and self-callback URLs
+      IdentityUrl: https://identity.eshop:8443
+      CallBackUrl: https://webapp.eshop:8443
+      ConnectionStrings__eventbus: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      identity-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  nginx:
+    image: nginx:alpine
+    container_name: eshop-nginx
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      default:
+        aliases:
+          - identity.eshop
+          - webapp.eshop
+          - basket.eshop
+          - catalog.eshop
+          - ordering.eshop
+    depends_on:
+      identity-api:
+        condition: service_healthy
+      basket-api:
+        condition: service_healthy
+      catalog-api:
+        condition: service_healthy
+      ordering-api:
+        condition: service_healthy
+      webapp:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
