@@ -1,3 +1,10 @@
+x-newrelic-env: &newrelic-env
+  CORECLR_ENABLE_PROFILING: "1"
+  CORECLR_PROFILER: "{36032161-FFC0-4B61-B559-F6C5D41BAE5A}"
+  CORECLR_NEWRELIC_HOME: /usr/local/newrelic-dotnet-agent
+  CORECLR_PROFILER_PATH: /usr/local/newrelic-dotnet-agent/libNewRelicProfiler.so
+  NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY:-}
+
 services:
   postgres:
     image: ankane/pgvector:latest
@@ -51,6 +58,7 @@ services:
       dockerfile: src/Identity.API/Dockerfile
     container_name: eshop-identity-api
     environment:
+      <<: *newrelic-env
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__identitydb: Host=postgres;Database=identitydb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
@@ -78,6 +86,7 @@ services:
       dockerfile: src/Basket.API/Dockerfile
     container_name: eshop-basket-api
     environment:
+      <<: *newrelic-env
       ASPNETCORE_ENVIRONMENT: Development
       # Override appsettings.json's EndpointDefaults=Http2 with two explicit endpoints
       Kestrel__Endpoints__Http__Url:        http://+:8080
@@ -106,6 +115,7 @@ services:
       dockerfile: src/Catalog.API/Dockerfile
     container_name: eshop-catalog-api
     environment:
+      <<: *newrelic-env
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__catalogdb: Host=postgres;Database=catalogdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
@@ -129,6 +139,7 @@ services:
       dockerfile: src/Ordering.API/Dockerfile
     container_name: eshop-ordering-api
     environment:
+      <<: *newrelic-env
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__orderingdb: Host=postgres;Database=orderingdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
@@ -153,6 +164,7 @@ services:
       dockerfile: src/OrderProcessor/Dockerfile
     container_name: eshop-order-processor
     environment:
+      <<: *newrelic-env
       DOTNET_ENVIRONMENT: Development
       ConnectionStrings__orderingdb: Host=postgres;Database=orderingdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
       ConnectionStrings__eventbus:  amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
@@ -169,6 +181,7 @@ services:
       dockerfile: src/PaymentProcessor/Dockerfile
     container_name: eshop-payment-processor
     environment:
+      <<: *newrelic-env
       DOTNET_ENVIRONMENT: Development
       ConnectionStrings__eventbus: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
     depends_on:
@@ -182,6 +195,7 @@ services:
       dockerfile: src/WebApp/Dockerfile
     container_name: eshop-webapp
     environment:
+      <<: *newrelic-env
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       # Service discovery — replaces Aspire-injected values
@@ -239,5 +253,15 @@ services:
       webapp:
         condition: service_healthy
 
+  newrelic-infra:
+    image: newrelic/infrastructure:latest
+    container_name: newrelic-infra
+    privileged: true
+    network_mode: host
+    environment:
+      - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
 volumes:
   postgres-data:
