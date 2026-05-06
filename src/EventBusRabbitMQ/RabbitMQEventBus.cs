@@ -149,7 +149,7 @@ public sealed class RabbitMQEventBus(
         // https://github.com/open-telemetry/semantic-conventions/blob/main/docs/messaging/messaging-spans.md
         var activityName = $"{eventArgs.RoutingKey} receive";
 
-        using var activity = _activitySource.StartActivity(activityName, ActivityKind.Client, parentContext.ActivityContext);
+        using var activity = _activitySource.StartActivity(activityName, ActivityKind.Consumer, parentContext.ActivityContext);
 
         SetActivityContext(activity, eventArgs.RoutingKey, "receive");
 

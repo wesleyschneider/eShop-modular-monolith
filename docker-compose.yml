@@ -4,6 +4,10 @@ x-newrelic-env: &newrelic-env
   CORECLR_NEWRELIC_HOME: /usr/local/newrelic-dotnet-agent
   CORECLR_PROFILER_PATH: /usr/local/newrelic-dotnet-agent/libNewRelicProfiler.so
   NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY:-}
+  OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp.nr-data.net"
+  OTEL_EXPORTER_OTLP_HEADERS: "api-key=${NEW_RELIC_LICENSE_KEY:-}"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+  OTEL_METRIC_EXPORT_INTERVAL: "10000"
 
 services:
   postgres:
@@ -59,6 +63,7 @@ services:
     container_name: eshop-identity-api
     environment:
       <<: *newrelic-env
+      OTEL_SERVICE_NAME: eshop-eda-identity-api
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__identitydb: Host=postgres;Database=identitydb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
@@ -87,6 +92,7 @@ services:
     container_name: eshop-basket-api
     environment:
       <<: *newrelic-env
+      OTEL_SERVICE_NAME: eshop-eda-basket-api
       ASPNETCORE_ENVIRONMENT: Development
       # Override appsettings.json's EndpointDefaults=Http2 with two explicit endpoints
       Kestrel__Endpoints__Http__Url:        http://+:8080
@@ -116,6 +122,7 @@ services:
     container_name: eshop-catalog-api
     environment:
       <<: *newrelic-env
+      OTEL_SERVICE_NAME: eshop-eda-catalog-api
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__catalogdb: Host=postgres;Database=catalogdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
@@ -140,6 +147,7 @@ services:
     container_name: eshop-ordering-api
     environment:
       <<: *newrelic-env
+      OTEL_SERVICE_NAME: eshop-eda-ordering-api
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__orderingdb: Host=postgres;Database=orderingdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
@@ -165,6 +173,7 @@ services:
     container_name: eshop-order-processor
     environment:
       <<: *newrelic-env
+      OTEL_SERVICE_NAME: eshop-eda-order-processor
       DOTNET_ENVIRONMENT: Development
       ConnectionStrings__orderingdb: Host=postgres;Database=orderingdb;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-Pass1234}
       ConnectionStrings__eventbus:  amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
@@ -182,6 +191,7 @@ services:
     container_name: eshop-payment-processor
     environment:
       <<: *newrelic-env
+      OTEL_SERVICE_NAME: eshop-eda-payment-processor
       DOTNET_ENVIRONMENT: Development
       ConnectionStrings__eventbus: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
     depends_on:
@@ -196,6 +206,7 @@ services:
     container_name: eshop-webapp
     environment:
       <<: *newrelic-env
+      OTEL_SERVICE_NAME: eshop-eda-webapp
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       # Service discovery — replaces Aspire-injected values
@@ -254,12 +265,17 @@ services:
         condition: service_healthy
 
   newrelic-infra:
-    image: newrelic/infrastructure:latest
+    image: newrelic/infrastructure-bundle:latest
     container_name: newrelic-infra
     privileged: true
     network_mode: host
+    pid: host
+    cap_add:
+      - SYS_PTRACE
     environment:
       - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+      - NRIA_DISPLAY_NAME=eshop-docker-host
+      - NRIA_OVERRIDE_HOSTNAME_SHORT=eshop-docker-host
     volumes:
       - "/:/host:ro"
       - "/var/run/docker.sock:/var/run/docker.sock"

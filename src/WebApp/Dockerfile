@@ -38,6 +38,8 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends curl ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
+ENV NEW_RELIC_APP_NAME="WebApp"
+
 COPY nginx/certs/rootCA.pem /usr/local/share/ca-certificates/mkcert.crt
 RUN update-ca-certificates
 

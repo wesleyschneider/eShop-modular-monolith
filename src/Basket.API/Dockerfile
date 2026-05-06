@@ -46,7 +46,7 @@ RUN apt-get update && apt-get install -y curl ca-certificates gnupg \
 && apt-get update \
 && apt-get install -y newrelic-dotnet-agent
 
-ENV NEW_RELIC_APP_NAME="eshop-eda-basket-api"
+ENV NEW_RELIC_APP_NAME="Basket.API"
 
 COPY nginx/certs/rootCA.pem /usr/local/share/ca-certificates/mkcert.crt
 RUN update-ca-certificates

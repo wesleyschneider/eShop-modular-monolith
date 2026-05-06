@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y curl ca-certificates gnupg \
 && apt-get update \
 && apt-get install -y newrelic-dotnet-agent
 
-ENV NEW_RELIC_APP_NAME="eshop-eda-order-processor"
+ENV NEW_RELIC_APP_NAME="OrderProcessor"
 
 COPY nginx/certs/rootCA.pem /usr/local/share/ca-certificates/mkcert.crt
 RUN update-ca-certificates
