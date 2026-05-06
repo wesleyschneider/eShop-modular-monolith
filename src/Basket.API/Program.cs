@@ -7,6 +7,8 @@ builder.Services.AddGrpc();
 
 var app = builder.Build();
 
+app.UseServiceDefaults();
+
 app.MapDefaultEndpoints();
 
 app.MapGrpcService<BasketService>();

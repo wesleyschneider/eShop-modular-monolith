@@ -51,6 +51,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 var app = builder.Build();
 
+app.UseServiceDefaults();
 app.UseForwardedHeaders();
 
 app.MapDefaultEndpoints();

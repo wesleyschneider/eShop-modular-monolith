@@ -13,6 +13,8 @@ builder.AddDefaultOpenApi(withApiVersioning);
 
 var app = builder.Build();
 
+app.UseServiceDefaults();
+
 app.MapDefaultEndpoints();
 
 app.UseStatusCodePages();

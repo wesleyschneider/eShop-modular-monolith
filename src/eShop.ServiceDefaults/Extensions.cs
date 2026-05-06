@@ -173,6 +173,12 @@ public static partial class Extensions
         }
     }
 
+    public static WebApplication UseServiceDefaults(this WebApplication app)
+    {
+        app.UseSessionId();
+        return app;
+    }
+
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
         // Uncomment the following line to enable the Prometheus endpoint (requires the OpenTelemetry.Exporter.Prometheus.AspNetCore package)
