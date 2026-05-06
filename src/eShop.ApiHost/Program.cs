@@ -21,6 +21,8 @@ builder.Services.AddScoped<IEventBus, InProcessEventBus>();
 
 var app = builder.Build();
 
+app.UseServiceDefaults();
+
 var options = new ForwardedHeadersOptions
 {
     ForwardedHeaders =

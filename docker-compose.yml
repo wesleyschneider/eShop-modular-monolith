@@ -1,3 +1,14 @@
+x-newrelic-env: &newrelic-env
+  CORECLR_ENABLE_PROFILING: "1"
+  CORECLR_PROFILER: "{36032161-FFC0-4B61-B559-F6C5D41BAE5A}"
+  CORECLR_NEWRELIC_HOME: /usr/local/newrelic-dotnet-agent
+  CORECLR_PROFILER_PATH: /usr/local/newrelic-dotnet-agent/libNewRelicProfiler.so
+  NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY:-}
+  OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp.nr-data.net"
+  OTEL_EXPORTER_OTLP_HEADERS: "api-key=${NEW_RELIC_LICENSE_KEY:-}"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+  OTEL_METRIC_EXPORT_INTERVAL: "10000"
+
 services:
   postgres:
     image: ankane/pgvector:latest
@@ -33,7 +44,11 @@ services:
       context: .
       dockerfile: src/eShop.ApiHost/Dockerfile
     container_name: eshop-api
+    ports:
+      - "8081:8081"
     environment:
+      <<: *newrelic-env
+      OTEL_SERVICE_NAME: eShop.ApiHost
       ASPNETCORE_ENVIRONMENT: Development
       # REST (HTTP/1.1) — porta 8080
       Kestrel__Endpoints__Http__Url: http://+:8080
@@ -67,6 +82,8 @@ services:
       dockerfile: src/WebApp/Dockerfile
     container_name: eshop-webapp
     environment:
+      <<: *newrelic-env
+      OTEL_SERVICE_NAME: WebApp
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       services__api__http__0: https://api.eshop:8443
@@ -79,23 +96,6 @@ services:
     depends_on:
       api:
         condition: service_healthy
-
-  # webhooksclient:
-  #   build:
-  #     context: .
-  #     dockerfile: src/WebhookClient/Dockerfile
-  #   container_name: eshop-webhooksclient
-  #   ports:
-  #     - "${WEBHOOKSCLIENT_PORT:-8082}:8080"
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: Development
-  #     ASPNETCORE_URLS: http://+:8080
-  #     services__api__http__0: https://api.eshop:8443
-  #     IdentityUrl: https://api.eshop:8443
-  #     CallBackUrl: http://localhost:${WEBHOOKSCLIENT_PORT:-8082}
-  #   depends_on:
-  #     api:
-  #       condition: service_healthy
 
   nginx:
     image: nginx:alpine
@@ -117,6 +117,22 @@ services:
       webapp:
         condition: service_started
 
+  newrelic-infra:
+    image: newrelic/infrastructure-bundle:latest
+    container_name: newrelic-infra
+    privileged: true
+    network_mode: host
+    pid: host
+    cap_add:
+      - SYS_PTRACE
+    environment:
+      - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+      - NRIA_DISPLAY_NAME=eshop-docker-host
+      - NRIA_OVERRIDE_HOSTNAME_SHORT=eshop-docker-host
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      
 volumes:
   postgres-data:
     

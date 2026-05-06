@@ -25,6 +25,14 @@ RUN apt-get update && apt-get install -y ca-certificates
 COPY nginx/certs/rootCA.pem /usr/local/share/ca-certificates/mkcert.crt
 RUN update-ca-certificates
 
+RUN apt-get update && apt-get install -y curl ca-certificates gnupg \
+&& echo 'deb [signed-by=/etc/apt/keyrings/newrelic-apt.gpg] http://apt.newrelic.com/debian/ newrelic non-free' | tee /etc/apt/sources.list.d/newrelic.list \
+&& curl -fsSL https://download.newrelic.com/NEWRELIC_APT_2DAD550E.public | gpg --dearmor > /etc/apt/keyrings/newrelic-apt.gpg \
+&& apt-get update \
+&& apt-get install -y newrelic-dotnet-agent
+
+ENV NEW_RELIC_APP_NAME="WebApp"
+
 COPY --from=build /app/publish .
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "WebApp.dll"]

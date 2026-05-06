@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace eShop.ServiceDefaults;
@@ -55,12 +58,18 @@ public static partial class Extensions
             logging.IncludeScopes = true;
         });
 
+        builder.Services.AddHostedService<ProcessMetrics>();
+
         builder.Services.AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService(
+                serviceName: builder.Environment.ApplicationName,
+                serviceInstanceId: Environment.MachineName))
             .WithMetrics(metrics =>
             {
                 metrics.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
+                    .AddMeter(ProcessMetrics.MeterName)
                     .AddMeter("Experimental.Microsoft.Extensions.AI");
             })
             .WithTracing(tracing =>
@@ -103,6 +112,71 @@ public static partial class Extensions
             .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
         return builder;
+    }
+
+    private sealed class ProcessMetrics(IMeterFactory meterFactory) : IHostedService
+    {
+        public const string MeterName = "eShop.Process";
+
+        private readonly Meter _meter = meterFactory.Create(MeterName);
+        private readonly Process _process = Process.GetCurrentProcess();
+        private DateTime _lastCpuSample = DateTime.UtcNow;
+        private TimeSpan _lastCpuTime = Process.GetCurrentProcess().TotalProcessorTime;
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            _meter.CreateObservableCounter(
+                "process.cpu.time",
+                () => _process.TotalProcessorTime.TotalSeconds,
+                unit: "s",
+                description: "Accumulated CPU time of the process");
+
+            _meter.CreateObservableGauge(
+                "process.cpu.utilization",
+                ObserveCpuUtilization,
+                unit: "1",
+                description: "Process CPU utilization (0..1) per logical core");
+
+            _meter.CreateObservableGauge(
+                "process.memory.usage",
+                () => (double)_process.WorkingSet64,
+                unit: "By",
+                description: "RSS (working set) of the process in bytes");
+
+            return Task.CompletedTask;
+        }
+
+        private double ObserveCpuUtilization()
+        {
+            var now = DateTime.UtcNow;
+            _process.Refresh();
+            var cpuNow = _process.TotalProcessorTime;
+
+            var wallElapsed = (now - _lastCpuSample).TotalSeconds;
+            var cpuElapsed = (cpuNow - _lastCpuTime).TotalSeconds;
+
+            _lastCpuSample = now;
+            _lastCpuTime = cpuNow;
+
+            if (wallElapsed <= 0)
+            {
+                return 0;
+            }
+
+            return cpuElapsed / (wallElapsed * Environment.ProcessorCount);
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            _meter.Dispose();
+            return Task.CompletedTask;
+        }
+    }
+
+    public static WebApplication UseServiceDefaults(this WebApplication app)
+    {
+        app.UseSessionId();
+        return app;
     }
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
