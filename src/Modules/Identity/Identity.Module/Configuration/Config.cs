@@ -143,6 +143,21 @@ public class Config
             },
             new Client
             {
+                ClientId = "k6loadtest",
+                ClientName = "K6 Load Test Client",
+                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                ClientSecrets = { new Secret("secret".Sha256()) },
+                AllowedScopes =
+                {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    "orders",
+                    "basket"
+                },
+                AccessTokenLifetime = 60*60*8 // 8 hours — long enough for a load test session
+            },
+            new Client
+            {
                 ClientId = "basketswaggerui",
                 ClientName = "Basket Swagger UI",
                 AllowedGrantTypes = GrantTypes.Implicit,
