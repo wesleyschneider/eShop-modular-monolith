@@ -90,6 +90,8 @@ services:
       context: .
       dockerfile: src/Basket.API/Dockerfile
     container_name: eshop-basket-api
+    ports:
+      - "8081:8081"
     environment:
       <<: *newrelic-env
       OTEL_SERVICE_NAME: eshop-eda-basket-api

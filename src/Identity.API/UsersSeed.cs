@@ -74,6 +74,7 @@ public class UsersSeed(ILogger<UsersSeed> logger, UserManager<ApplicationUser> u
                 Street = "15703 NE 61st Ct",
                 SecurityNumber = "456"
             };
+            bob.Id = "a68b00ff-2d82-4e40-af52-b6b09e6ee514";
 
             var result = await userManager.CreateAsync(bob, "Pass123$");
 
@@ -92,6 +93,61 @@ public class UsersSeed(ILogger<UsersSeed> logger, UserManager<ApplicationUser> u
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 logger.LogDebug("bob already exists");
+            }
+        }
+
+        var users = new[] { "charlie", "diana", "evan", "fiona", "george", "hannah", "ivan", "julia", "kevin", "laura", "michael", "nancy", "oliver", "patricia", "quinn", "rachel", "samuel", "tina", "ulysses", "vera", "walter", "xena", "yuri", "zara", "adam", "bella", "carlos", "diana", "eric", "felicity", "grace", "henry", "iris", "james", "kathy", "liam", "megan", "nathan", "olivia", "peter", "quinn", "robert", "sophia", "thomas", "uma", "victor", "wendy", "xavier", "yara", "zachary" };
+
+        foreach (var username in users)
+        {
+            var user = await userManager.FindByNameAsync(username);
+
+            if (user == null)
+            {
+                var firstName = char.ToUpper(username[0]) + username.Substring(1);
+                var lastName = "Smith";
+                var email = $"{firstName}@email.com";
+                var cardNumber = $"XXXXXXXXXXXX{1000 + users.ToList().IndexOf(username):D4}";
+
+                user = new ApplicationUser
+                {
+                    UserName = username,
+                    Email = email,
+                    EmailConfirmed = true,
+                    CardHolderName = $"{firstName} {lastName}",
+                    CardNumber = cardNumber,
+                    CardType = 1,
+                    City = "Redmond",
+                    Country = "U.S.",
+                    Expiration = "12/24",
+                    Id = Guid.NewGuid().ToString(),
+                    LastName = lastName,
+                    Name = firstName,
+                    PhoneNumber = "1234567890",
+                    ZipCode = "98052",
+                    State = "WA",
+                    Street = "15703 NE 61st Ct",
+                    SecurityNumber = $"{100 + users.ToList().IndexOf(username):D3}"
+                };
+
+                var result = await userManager.CreateAsync(user, "Pass123$");
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception(result.Errors.First().Description);
+                }
+
+                if (logger.IsEnabled(LogLevel.Debug))
+                {
+                    logger.LogDebug($"{username} created");
+                }
+            }
+            else
+            {
+                if (logger.IsEnabled(LogLevel.Debug))
+                {
+                    logger.LogDebug($"{username} already exists");
+                }
             }
         }
     }
