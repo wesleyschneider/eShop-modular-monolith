@@ -15,6 +15,7 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
+    <PackageReference Include="NewRelic.Agent.Api" />
   </ItemGroup>
 
   <ItemGroup>
