@@ -180,8 +180,11 @@ public sealed class RabbitMQEventBus(
         await _consumerChannel.BasicAckAsync(eventArgs.DeliveryTag, multiple: false);
     }
 
+    [NewRelic.Api.Agent.Transaction(Web = false)]
     private async Task ProcessEvent(string eventName, string message)
     {
+        NewRelic.Api.Agent.NewRelic.SetTransactionName("Message", eventName);
+
         if (logger.IsEnabled(LogLevel.Trace))
         {
             logger.LogTrace("Processing RabbitMQ event: {EventName}", eventName);

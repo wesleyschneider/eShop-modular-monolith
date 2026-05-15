@@ -41,8 +41,11 @@ namespace eShop.OrderProcessor.Services
             }
         }
 
+        [NewRelic.Api.Agent.Transaction(Web = false)]
         private async Task CheckConfirmedGracePeriodOrders()
         {
+            NewRelic.Api.Agent.NewRelic.SetTransactionName("Job", "GracePeriodCheck");
+
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 logger.LogDebug("Checking confirmed grace period orders");

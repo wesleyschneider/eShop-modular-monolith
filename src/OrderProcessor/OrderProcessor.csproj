@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Npgsql" />
+    <PackageReference Include="NewRelic.Agent.Api" />
   </ItemGroup>
 
   <ItemGroup>

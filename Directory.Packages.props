@@ -92,5 +92,7 @@
     <PackageVersion Include="Scalar.AspNetCore" Version="2.8.6" />
     <!-- Before license change -->
     <PackageVersion Include="MediatR" Version="13.0.0" />
+    <!-- New Relic .NET Agent API (custom transactions for background work) -->
+    <PackageVersion Include="NewRelic.Agent.Api" Version="10.32.0" />
   </ItemGroup>
 </Project>
