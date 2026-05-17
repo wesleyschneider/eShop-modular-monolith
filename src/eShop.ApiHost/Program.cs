@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Channels;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +18,10 @@ var withApiVersioning = builder.Services.AddApiVersioning();
 builder.AddDefaultOpenApi(withApiVersioning);
 builder.Services.AddGrpc();
 
-builder.Services.AddScoped<IEventBus, InProcessEventBus>();
+builder.Services.AddSingleton(Channel.CreateUnbounded<IntegrationEvent>(
+    new UnboundedChannelOptions { SingleReader = true }));
+builder.Services.AddSingleton<IEventBus, ChannelEventBus>();
+builder.Services.AddHostedService<IntegrationEventDispatcher>();
 
 var app = builder.Build();
 

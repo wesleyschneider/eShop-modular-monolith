@@ -1,23 +1,32 @@
+using System.Collections.Generic;
+using System.Threading.Channels;
+
 namespace eShop.SharedKernel.UnitTests;
 
 [TestClass]
-public class InProcessEventBusTests
+public class ChannelEventBusTests
 {
     [TestMethod]
-    public async Task PublishAsync_ShouldDelegateToMediator()
+    public async Task PublishAsync_ShouldEnqueueEventOnChannel()
     {
         // Arrange
-        var mediator = Substitute.For<IMediator>();
-        var bus = new InProcessEventBus(mediator);
+        var channel = Channel.CreateUnbounded<IntegrationEvent>();
+        var bus = new ChannelEventBus(channel);
         var evt = new TestIntegrationEvent();
 
         // Act
         await bus.PublishAsync(evt);
+        channel.Writer.Complete();
 
         // Assert
-        await mediator.Received(1).Publish(
-            Arg.Is<TestIntegrationEvent>(e => e.Id == evt.Id),
-            Arg.Any<CancellationToken>());
+        var queued = new List<IntegrationEvent>();
+        await foreach (var item in channel.Reader.ReadAllAsync())
+        {
+            queued.Add(item);
+        }
+
+        Assert.AreEqual(1, queued.Count);
+        Assert.AreSame(evt, queued[0]);
     }
 
     [TestMethod]
