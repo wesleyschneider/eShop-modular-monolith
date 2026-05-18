@@ -1,8 +1,8 @@
 receivers:
   docker_stats:
     endpoint: unix:///var/run/docker.sock
-    collection_interval: 60s
-    timeout: 20s
+    collection_interval: 1s
+    timeout: 2s
     metrics:
       container.cpu.utilization:
         enabled: true
@@ -33,6 +33,9 @@ processors:
         action: upsert
       - key: service.namespace
         value: eshop
+        action: upsert
+      - key: experiment.architecture
+        value: mm
         action: upsert
 
 exporters:
